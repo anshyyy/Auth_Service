@@ -21,7 +21,7 @@ module.exports = {
       },
       verified: {
         type: Sequelize.STRING,
-        defaultValue:"NO"
+        defaultValue:0
       },
       createdAt: {
         allowNull: false,
