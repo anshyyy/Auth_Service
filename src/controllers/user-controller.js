@@ -11,7 +11,7 @@ const create = async (req, res) => {
         });
         return res.status(201).json({
             message: "Successfully created the User!",
-            data:response,
+            data: response,
             err: {},
             success: true
         });
@@ -25,9 +25,33 @@ const create = async (req, res) => {
         });
     }
 }
+const getUser = async (req, res) => {
+    try {
+        console.log(req.body);
+        console.log(req.query);
+        const response = await userService.getUser(req.query.id);
+        return res.status(201).json({
+            message: "Successfully fetched the User!",
+            data: response,
+            err: {},
+            success: true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Not able to fetch the User!",
+            err: error,
+            success: false,
+            data: {}
+        });
+    }
+}
+
+
 
 module.exports = {
-    create
+    create,
+    getUser
 }
 
 
