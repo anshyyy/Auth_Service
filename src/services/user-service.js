@@ -1,87 +1,105 @@
 const UserRepository = require("../repository/user-repository");
-const {JWT_KEY} = require('../config/serverConfig');
+const { JWT_KEY } = require('../config/serverConfig');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 
-class UserService{
+class UserService {
 
-    constructor(){
+    constructor() {
         this.userRepository = new UserRepository();
     }
-    async create(data){
+    async create(data) {
         try {
             const user = await this.userRepository.create(data);
             return user;
         } catch (error) {
             console.log("Something went wrong Service layer.");
-            throw(error);
+            throw (error);
         }
     }
-    async destroy (data){
+    async destroy(data) {
         try {
             const user = await this.userRepository.destroy(data);
             return true;
         } catch (error) {
             console.log("Something went wrong Service layer.");
-            throw(error);
+            throw (error);
         }
 
     }
-    async getUser(userId){
+    async getUser(userId) {
         try {
             const user = await this.userRepository.getById(userId);
             return user;
         } catch (error) {
             console.log("Something went wrong Service layer.");
-            throw(error);
+            throw (error);
         }
     }
-    createToken(user){
+    createToken(user) {
         try {
-            const result = jwt.sign(user,JWT_KEY,{expiresIn:'1h'});
+            const result = jwt.sign(user, JWT_KEY, { expiresIn: '1h' });
             return result;
         } catch (error) {
             console.log("Something went wrong in token creation.");
-            throw(error);
+            throw (error);
         }
     }
 
-    verifyToken(token){
+    verifyToken(token) {
         try {
-            const response = jwt.verify(token,JWT_KEY);
+            const response = jwt.verify(token, JWT_KEY);
             return response;
         } catch (error) {
             console.log("Something went wrong during verification of the token");
-            throw(error);
+            throw (error);
         }
     }
 
-    async signIn(userEmail,plainPassword){
-        
+    async signIn(userEmail, plainPassword) {
+
         try {
             //step 1 -> fetch the user
             const user = await this.userRepository.getByEmail(userEmail);
             // step 2 -> compare the user
-            const encryptedPassword =  user.password;
-            const passwordMatch = this.checkPassword(plainPassword,encryptedPassword);
+            const encryptedPassword = user.password;
+            const passwordMatch = this.checkPassword(plainPassword, encryptedPassword);
 
-            if(!passwordMatch){
+            if (!passwordMatch) {
                 console.log("Password dosen't match");
-                throw {error:"Incorrect password"};
+                throw { error: "Incorrect password" };
             }
-            const newJWTtoken = this.createToken({email:user.email,id:user.id});
+            const newJWTtoken = this.createToken({ email: user.email, id: user.id });
             return newJWTtoken
-            
+
         } catch (error) {
             console.log("Something went wrong in signIn process");
             throw error;
         }
     }
 
-    checkPassword(userInputPassword,encryptedPassword){
+    async isAuthenticated(token) {
         try {
-              return bcrypt.compareSync(userInputPassword,encryptedPassword);
+            const isTokenverified = this.verifyToken(token);
+            if (!isTokenverified) {
+                throw { error: 'Invalid token' };
+            }
+            const user = await this.userRepository.getById(isTokenverified.id);
+            if(!user){
+                throw {error : 'No user with the corresponding token exists!'};
+            }
+            console.log("->",user);
+            return user.id;
+        } catch (error) {
+            console.log("Something went wrong in the auth process");
+            throw error;
+        }
+    }
+
+    checkPassword(userInputPassword, encryptedPassword) {
+        try {
+            return bcrypt.compareSync(userInputPassword, encryptedPassword);
         } catch (error) {
             console.log("Something went wrong in password comparison");
             throw error;
