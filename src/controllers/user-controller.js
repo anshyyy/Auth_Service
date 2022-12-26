@@ -27,8 +27,8 @@ const create = async (req, res) => {
 }
 const getUser = async (req, res) => {
     try {
-        console.log(req.body);
-        console.log(req.query);
+        // console.log(req.body);
+        // console.log(req.query);
         const response = await userService.getUser(req.query.id);
         return res.status(201).json({
             message: "Successfully fetched the User!",
@@ -47,11 +47,32 @@ const getUser = async (req, res) => {
     }
 }
 
+const signIn = async(req,res) => {
+    try {
+        const response = await userService.signIn(req.body.email, req.body.password);
+        return res.status(201).json({
+            message : "Successfully Signed In",
+            data : response,
+            err : {},
+            success:true
+        });
+    } catch (error) {
+         console.log(error);
+         return res.status(500).json({
+            message : "Not able to sign-in",
+            err:error,
+            success:false,
+            data:{}
+         });
+    }
+}
+
 
 
 module.exports = {
     create,
-    getUser
+    getUser,
+    signIn
 }
 
 

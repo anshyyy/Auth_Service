@@ -56,6 +56,29 @@ class UserService{
             throw(error);
         }
     }
+
+    async signIn(userEmail,plainPassword){
+        
+        try {
+            //step 1 -> fetch the user
+            const user = await this.userRepository.getByEmail(userEmail);
+            // step 2 -> compare the user
+            const encryptedPassword =  user.password;
+            const passwordMatch = this.checkPassword(plainPassword,encryptedPassword);
+
+            if(!passwordMatch){
+                console.log("Password dosen't match");
+                throw {error:"Incorrect password"};
+            }
+            const newJWTtoken = this.createToken({email:user.email,id:user.id});
+            return newJWTtoken
+            
+        } catch (error) {
+            console.log("Something went wrong in signIn process");
+            throw error;
+        }
+    }
+
     checkPassword(userInputPassword,encryptedPassword){
         try {
               return bcrypt.compareSync(userInputPassword,encryptedPassword);
