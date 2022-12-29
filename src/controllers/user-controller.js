@@ -88,14 +88,60 @@ const isAuthenticated = async(req,res) => {
             data:{}
          });
     }
+
+
 }
 
+const isAdmin = async(req,res) => {
+    try {
+        const admin = await userService.isAdmin(req.body.id);
+        return res.status(201).json({
+            success:true,
+            message : admin? "YES Admin": "NO not an admin",
+            data : admin,
+            err : {}
+        });
+        
+    } catch (error) {
+        console.log(error);
+         return res.status(500).json({
+            message : "Not an admin",
+            err:error,
+            success:false,
+            data:{}
+         });
+    }
+}
+
+const grantRole = async(req,res) => {
+    try {
+
+        const response = await userService.grantRole(req.body.userid,req.body.roleid);
+        return res.status(201).json({
+            success:true,
+            message : "Role Granted",
+            data : response,
+            err : {}
+        });
+        
+    } catch (error) {
+        console.log(error);
+         return res.status(500).json({
+            message : "Not able to grant the role",
+            err:error,
+            success:false,
+            data:{}
+         });
+    }
+}
 
 module.exports = {
     create,
     getUser,
     signIn,
-    isAuthenticated
+    isAuthenticated,
+    isAdmin,
+    grantRole
 }
 
 

@@ -1,4 +1,4 @@
-const { User } = require('../models/index');
+const { User, Role } = require('../models/index');
 
 
 class UserRepository {
@@ -27,12 +27,14 @@ class UserRepository {
     }
   }
 
-  async getByEmail(userEmail){
+  async getByEmail(userEmail) {
     try {
-         const user = await User.findOne({where :{
-          email : userEmail
-         }});
-         return user;
+      const user = await User.findOne({
+        where: {
+          email: userEmail
+        }
+      });
+      return user;
     } catch (error) {
       console.log("Something went wrong in fetching the user");
       throw error;
@@ -50,6 +52,35 @@ class UserRepository {
       throw (error);
     }
   }
+
+  async isAdmin(userId) {
+    try {
+      const user = await User.findByPk(userId);
+      const adminRole = await Role.findOne({
+        where: {
+          name: 'ADMIN'
+        }
+      });
+      return user.hasRole(adminRole);
+    } catch (error) {
+      console.log("Something went wrong");
+      throw error;
+    }
+  }
+  
+  async grantAccess(userId,roleId){
+    try {
+        const user = await User.findByPk(userId);
+        const role = await Role.findByPk(roleId);
+        user.addRole(role);
+        return true;
+      
+    } catch (error) {
+      console.log("Something went wrong in the repository layer!");
+      throw error
+    }
+  }
+
 
 }
 

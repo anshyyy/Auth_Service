@@ -10,7 +10,34 @@ const validateUserAuth = (req,res,next) => {
     next();
 }
 
+const validateisAdminRequest = (req,res,next)=> {
+    if(!req.body.id){
+        return res.status(404).json({
+            success : false,
+            data:{},
+            err : "User id is not given",
+            message: "Something went wrong",
+        });
+    }
+    next();
+}
+
+const validateGrantRoleRequest = (req,res,next) => {
+    console.log(req.body);
+    if(!req.body.userid || !req.body.roleid){
+        return res.status(404).json({
+            success : false,
+            data:{},
+            err : "userid or roleid are not given",
+            message: "Something went wrong",
+        });
+    }
+    next();
+}
+
 
 module.exports = {
-    validateUserAuth
+    validateUserAuth,
+    validateisAdminRequest,
+    validateGrantRoleRequest
 }
