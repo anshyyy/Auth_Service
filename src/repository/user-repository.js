@@ -1,3 +1,4 @@
+const  ValidationError = require('../utils/validation-error');
 const { User, Role } = require('../models/index');
 
 
@@ -8,12 +9,17 @@ class UserRepository {
       const user = await User.create(data);
       return user
     } catch (error) {
+      if(error.name == "SequelizeValidationError"){
+        throw new ValidationError(error);
+      }
+
       console.log("Something went wrong at repository layer");
       throw (error);
     }
   }
   async destroy(userId) {
     try {
+
       await User.destroy({
         where: {
           id: userId
@@ -67,14 +73,14 @@ class UserRepository {
       throw error;
     }
   }
-  
-  async grantAccess(userId,roleId){
+
+  async grantAccess(userId, roleId) {
     try {
-        const user = await User.findByPk(userId);
-        const role = await Role.findByPk(roleId);
-        user.addRole(role);
-        return true;
-      
+      const user = await User.findByPk(userId);
+      const role = await Role.findByPk(roleId);
+      user.addRole(role);
+      return true;
+
     } catch (error) {
       console.log("Something went wrong in the repository layer!");
       throw error
