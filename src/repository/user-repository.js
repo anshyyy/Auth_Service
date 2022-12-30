@@ -1,25 +1,50 @@
 const  ValidationError = require('../utils/validation-error');
-const { User, Role } = require('../models/index');
+const { User, Role } = require('../models/index.js');
+const {verifyEmail} = require('../utils/sendEmail');
 
 
 class UserRepository {
 
   async create(data) {
     try {
+      console.log(data);
       const user = await User.create(data);
-      return user
+      verifyEmail(user.Name,user.email,user.emailtoken);
+      return user;
     } catch (error) {
       if(error.name == "SequelizeValidationError"){
-        throw new ValidationError(error);
+              throw new ValidationError(error);
       }
-
       console.log("Something went wrong at repository layer");
       throw (error);
     }
   }
+  async verifyEmailtoken(token){
+      try {
+
+        const user = await User.findOne({emailtoken:token});
+        if(!user){
+          console.log('User dosent exist');
+          throw error;
+        }
+        var data = {
+          emailtoken:null,
+          verified:1
+        }
+        await User.update(data,{
+          where:{
+                  emailtoken:token
+          }
+        });
+        return 'Verification Successfull!';
+        
+      } catch (error) {
+        console.log("Something went wrong in the verification of mail");
+        throw error;
+      }
+  }
   async destroy(userId) {
     try {
-
       await User.destroy({
         where: {
           id: userId

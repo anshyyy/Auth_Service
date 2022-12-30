@@ -32,6 +32,15 @@ class UserService {
         }
 
     }
+    async verifyEmailtoken(token){
+        try {
+            const user = await this.userRepository.verifyEmailtoken(token);
+            return user;
+        } catch (error) {
+            console.log("Something went wrong Service layer.");
+            throw (error);
+        }
+    }
     async getUser(userId) {
         try {
             const user = await this.userRepository.getById(userId);

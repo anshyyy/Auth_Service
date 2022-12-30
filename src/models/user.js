@@ -4,6 +4,8 @@ const {
 } = require('sequelize');
 const {SALT} = require('../config/serverConfig');
 const bcrypt = require('bcrypt');
+var randomBytes = require('randombytes');
+
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -18,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User.init({
+    Name : {
+      type :DataTypes.STRING,
+      allowNull:false
+    },
     email:{
       type: DataTypes.STRING,
       allowNull:false,
@@ -30,7 +36,13 @@ module.exports = (sequelize, DataTypes) => {
     verified:{
       type : DataTypes.STRING,
       defaultValue: 0
-    }
+    },
+    emailtoken :{
+      type:DataTypes.STRING,
+      defaultValue:randomBytes(32).toString('hex'),
+      allowNull:true
+    },
+   
 
   }, {
     sequelize,
