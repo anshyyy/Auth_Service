@@ -1,6 +1,7 @@
-const  ValidationError = require('../utils/validation-error');
+const ValidationError = require('../utils/validation-error');
 const { User, Role } = require('../models/index.js');
-const {verifyEmail} = require('../utils/sendEmail');
+const { verifyEmail } = require('../utils/sendEmail');
+const { where } = require("sequelize");
 
 
 class UserRepository {
@@ -9,39 +10,39 @@ class UserRepository {
     try {
       console.log(data);
       const user = await User.create(data);
-      verifyEmail(user.Name,user.email,user.emailtoken);
+      verifyEmail(user.Name, user.email, user.emailtoken);
       return user;
     } catch (error) {
-      if(error.name == "SequelizeValidationError"){
-              throw new ValidationError(error);
+      if (error.name == "SequelizeValidationError") {
+        throw new ValidationError(error);
       }
       console.log("Something went wrong at repository layer");
       throw (error);
     }
   }
-  async verifyEmailtoken(token){
-      try {
+  async verifyEmailtoken(token) {
+    try {
 
-        const user = await User.findOne({emailtoken:token});
-        if(!user){
-          console.log('User dosent exist');
-          throw error;
-        }
-        var data = {
-          emailtoken:null,
-          verified:1
-        }
-        await User.update(data,{
-          where:{
-                  emailtoken:token
-          }
-        });
-        return 'Verification Successfull!';
-        
-      } catch (error) {
-        console.log("Something went wrong in the verification of mail");
+      const user = await User.findOne({ emailtoken: token });
+      if (!user) {
+        console.log('User dosent exist');
         throw error;
       }
+      var data = {
+        emailtoken: null,
+        verified: 1
+      }
+      await User.update(data, {
+        where: {
+          emailtoken: token
+        }
+      });
+      return 'Verification Successfull!';
+
+    } catch (error) {
+      console.log("Something went wrong in the verification of mail");
+      throw error;
+    }
   }
   async destroy(userId) {
     try {
@@ -57,7 +58,15 @@ class UserRepository {
       throw (error);
     }
   }
-
+  async getByUserId(userId) {
+    try {
+      const user = await User.findAll({ where: { id: userId }, attributes: ['email', "Name", "Verified"] });
+      return user;
+    } catch (e) {
+      console.log("Something went wrong in fetching the user");
+      throw e;
+    }
+  }
   async getByEmail(userEmail) {
     try {
       const user = await User.findOne({
@@ -73,10 +82,13 @@ class UserRepository {
   }
 
   async getById(userId) {
+    console.log("here", userId)
     try {
-      const user = await User.findByPk(userId, {
-        attributes: ['email', 'id']
+      const user = await User.findAll({
+        where: { id: userId },
+        attributes: ['email', 'id', 'Name', 'Verified']
       });
+      // delete user.password;
       return user;
     } catch (error) {
       console.log("Something went wrong at repository layer");

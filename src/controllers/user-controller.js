@@ -66,6 +66,25 @@ const signIn = async(req,res) => {
          });
     }
 }
+const getByUserId = async (req,res) => {
+    try {
+        const response = await userService.getUserById(req.params.id);
+        return res.status(201).json({
+            message : "Successfully fetched the user",
+            data : response,
+            err : {},
+            success:true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message : "Not able to fetch",
+            err:error,
+            success:false,
+            data:{}
+        });
+    }
+}
 const isAuthenticated = async(req,res) => {
     try {
 
@@ -181,7 +200,8 @@ module.exports = {
     isAuthenticated,
     isAdmin,
     grantRole,
-    verifyEmailtoken
+    verifyEmailtoken,
+    getByUserId
 }
 
 
